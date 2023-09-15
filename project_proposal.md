@@ -17,6 +17,8 @@ Potential Questions:
 
 + How does the performance of S&P 500 index funds compare the the performance of activley managed mutual funds? 
 + What is the best way to calculate projected growth of a mutual fund?
++ Can investing "sustainably" produce similar returns to their nonsustainable counterparts?
++ How does inflation factor into the growth of mutual funds?
 
 
 ### Intellectual Merit:
