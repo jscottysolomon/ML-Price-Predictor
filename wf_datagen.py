@@ -39,7 +39,7 @@ def web_scrapping(url, fundName):
     response = requests.get(url, headers=headers)
 
     if(response.status_code == 200):
-        filePath = "data_original/" + fundName + ".csv"
+        filePath = "data_original/funds/" + fundName + ".csv"
 
         with open(filePath, 'wb') as file:
             file.write(response.content)

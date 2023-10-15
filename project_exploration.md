@@ -7,13 +7,15 @@ At this time, this project has not been cleared by the course staff (R. Acuna) f
 
 The source of the tickers used can be found [here](https://github.com/JerBouma/FinanceDatabase/blob/main/database/funds.csv). The data was created by Jeroen Bouma, a financial risk analyst, and was last edited 7 months ago. He created a community-based database that hosts tickers for stocks, efts, mutual funds, et cetera.
 
+I manually requested 5 different S&P index funds via the Yahoo Finance urls outlined below. Full transparency: I just asked chat GPT for S&P index funds and just requested the 5 index funds it gave me. Some context about S&P index funds is that all they do is essentially match whatever is in the S&P 500. Actively managed funds customize their portfolios of stocks. 
+
 ## Web Scrapping
 
 Data was scrapped from Yahoo Finance. They host historical data for a variety of mutual funds on their website. Yahoo Finance gives users the options to request historical data over the last 20 twenty years, and displays that data to them in the form of tables on an html file. However, Yahoo Finance enables users also allows users to download said data into a csv file.
 
 Requests for CSV files are easily replicatable. The general format of a url for a CSV can be found below:
 ```
-https://query1.finance.yahoo.com/v7/finance/download/SQQQ?period1=1265846400&period2=1697155200&interval=1mo&events=history&includeAdjustedClose=true"
+https://query1.finance.yahoo.com/v7/finance/download/SQQQ?period1=1265846400&period2=1697155200&interval=1mo&events=history&includeAdjustedClose=true
 ```
 
 The ticker for each mutual fund is changed in order to request a csv for each fund. The query options after the ticket request monthly data for the mutual fund that dates back to February 11, 2010 and requests adjusted closed prices for inflation.
