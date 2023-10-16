@@ -49,3 +49,11 @@ The data example from the Data Format sections comes from the first two entries 
 Each fund is stored in a csv file in which the title of the csv corresponds to the name of the fund. The data in the csv is succinct and not irregular. The only optional data munging would be to create one large csv file that contains data from all of the csv files. However, I chose not to do this. 
 
 As it stands, each fund is contained within its own self contained file. A combined file would mean that the data would all be in one file, but the benefits would end there. If I needed to access a specific file, I would have to iterate through 165 rows per fund in order to get to the next one. Whereas I currently am able to directly open the file for a fund I wanted using the fund name as an identifier.
+
+## Quantitative Data
++ Lifetime Appreciation
++ Avg. Appreciation per year
++ Median Appreciation per year
++ Lifetime Dollar Appreciation
+
+## Qualitative Dat

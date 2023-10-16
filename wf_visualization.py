@@ -1,6 +1,9 @@
 import os
 import csv
 from datetime import datetime
+import matplotlib.pyplot as plt
+import statistics as stats
+import pandas as pd
 
 DATE = 0
 OPEN = 1
@@ -29,6 +32,104 @@ def getIndexData(files):
         indexFunds.append(data)
 
     return indexFunds
+
+def visualization(files):
+    lifetimeAppreciation = []
+    medianYearlyAppreciation = []
+    lifetimeDollarIncrease = []
+    lifetime = []
+    fundData = []
+
+    i = 0
+    for x in files:
+        fileName = "data_original\\funds\\" + x
+        data = [[],[],[],[],[]]
+
+        print(x)
+        
+
+        with open(fileName, encoding="utf8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            try:
+                for row in reader:
+                    data[OPEN].append(float(row['Open']))
+                    data[DATE].append(row['Date'])
+                    data[HIGH].append(float(row['High']))
+                    data[LOW].append(float(row['Low']))
+                    data[CLOSE].append(float(row['Close']))
+            except Exception as e:
+                pass
+
+        fundData.append(data)
+
+        i += 1
+        if(i > 1000):
+            break
+
+    
+    # print(fundData)    
+    
+    for x in fundData:
+        length = len(x[0])
+        try:
+            if(x[OPEN][0]==0):
+                lifetimeAppreciation.append(-1)
+            else:
+                lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][0])
+            lifetimeDollarIncrease.append(float(x[OPEN][length-1])-float(x[OPEN][0]))
+
+            dateFormat = "%Y-%m-%d"
+
+            lifetime.append(datetime.strptime(x[DATE][length-1],dateFormat) - 
+                            datetime.strptime(x[DATE][0],dateFormat))
+            
+            curr = 12
+            yearlyReturn = []
+            while(curr < length):
+                if(x[OPEN][curr-12] == 0):
+                    if x[OPEN][curr] != 0:
+                        yearlyReturn.append(1)
+                    else:
+                        pass
+                yearlyReturn.append(float(x[OPEN][curr])/float(x[OPEN][curr-12]))
+
+                curr += 12
+            
+            medianYearlyAppreciation.append(stats.median(yearlyReturn))
+            
+        except Exception as e:
+            print(e)
+            pass
+
+    
+
+    if not os.path.exists("data_processed/"):
+        os.mkdir("data_processed/")
+        
+    fileString = "Statistic: Minimum, Maximum, Average\n"
+    fileString += "Lifetime Appreciation: " + str(min(lifetimeAppreciation)) + "," + str(max(lifetimeAppreciation)) + "," + str(stats.median(lifetimeAppreciation)) + "\n"
+    fileString += "Lifetime Dollar Increase: " + str(min(lifetimeDollarIncrease)) + "," + str(max(lifetimeDollarIncrease)) + "," + str(stats.median(lifetimeDollarIncrease)) + "\n"
+    fileString += "Median Yearly Return: " + str(min(medianYearlyAppreciation)) + "," + str(max(medianYearlyAppreciation)) + "," + str(stats.median(medianYearlyAppreciation)) + "\n"
+    fileString += "Median Yearly Return: " + str(min(lifetime)) + "," + str(max(lifetime)) + "," + str(stats.median(lifetime)) + "\n"
+
+    print(fileString) 
+
+    df = pd.DataFrame({
+        'Lifetime': lifetime,
+        'Median Yearly Return': medianYearlyAppreciation,
+
+    })
+
+    correlation_matrix = df.corr(method='pearson')
+    print(correlation_matrix)
+
+    # print(lifetimeAppreciation)
+    # print(lifetimeDollarIncrease)
+    # print(max(lifetime))
+    # print(stats.median(medianYearlyAppreciation))
+
+# def median(lst):
+
 
 def processCSV(files, indexData):
     i = 0
@@ -80,21 +181,17 @@ def processCSV(files, indexData):
                                 fundAppreciation = (float(fundData[OPEN][fundCurr]) / float(fundData[OPEN][fundCurr - 12]))
                                 indexAppreciation = (float(x[OPEN][curr]) / float(x[OPEN][curr - 12]))
 
-                                # print(date, " ", fundData[OPEN][fundCurr], " ",fundData[OPEN][fundCurr - 12], " ", fundAppreciation, "|\t", x[OPEN][curr], " ", x[OPEN][curr - 12], " ", indexAppreciation)
+                                print(date, " ", fundData[OPEN][fundCurr], " ",fundData[OPEN][fundCurr - 12], " ", fundAppreciation, "|\t", x[OPEN][curr], " ", x[OPEN][curr - 12], " ", indexAppreciation)
                                 # print(fundAppreciation, " " , indexAppreciation)
-                                if(fundAppreciation > indexAppreciation):
-                                    # print("Fund")
-                                    outPerformed += 1
-                                elif(indexAppreciation > fundAppreciation):
-                                    # print("Index")
+                                if(indexAppreciation > fundAppreciation):
                                     underPerformed += 1
                                 else:
-                                    print("tie")
+                                    outPerformed += 1
                             except Exception as e:
                                 pass
                         
-                        curr +=1
-                        fundCurr += 1
+                        curr +=12
+                        fundCurr += 12
                     elif(fundDate > indexDate):
                         curr += 1
                         
@@ -111,41 +208,56 @@ def processCSV(files, indexData):
             pass
 
         # print("Outperformed S&P ", (outPerformed / (outPerformed + underPerformed)),"% of the time" )
-
+        if(i >= 1000):
+            break
             
         i+= 1
 
-
-    print(percent)
-
     
     fifty = 0
-    twenty_five = 0
-    ten = 0
-    lessThan = 0
-    zero = 0
+    seventyFive = 0
+    ninety = 0
+    hundred = 0
+
+    quarters = [0,0,0,0,0]
 
     for x in percent:
-        if(x >= 0.5):
+        if(x >= 0.5 and x < 0.75):
             fifty += 1
+        if(x >= 0.75 and x < 0.9):
+            seventyFive += 1
+        if(x >= 0.9 and x < 1):
+            seventyFive += 1
+        if(x == 1):
+            hundred += 1
+
+        if(x >= 0.5):
+            quarters[0] += 1
         elif(x >= 0.25):
-            twenty_five += 1
-        elif(x >= 0.1):
-            ten += 1
-        elif(x < 0.1 and x > 0):
-            lessThan += 1
+            quarters[1] += 1
+        elif(x >= 0.1): 
+            quarters[2] += 1
+        elif(x > 0 and x < 0.1):
+            quarters[3] += 1
         else:
-            zero += 1
+            quarters[4] += 1
+
+    labels = ["50-100%", "25-49%", "10-24%", "Less than 10%", "0%"]
+
+    plt.title("Percent of time that a fund outperforms the S&P 500")
 
     print(fifty)
-    print(twenty_five)
-    print(ten)
-    print(lessThan)
-    print(zero)
+    print(seventyFive)
+    print(ninety)
+    print(hundred)
+    plt.pie(quarters, labels=labels, autopct='%1.1f%%')
+    plt.savefig("visuals/comparison.png")
+    plt.show()
+    
 
 if __name__ == '__main__':
     fundsFiles = os.listdir(path='.\\data_original\\funds')
-    indexFiles = os.listdir(path='.\\data_original\\index')
+    # indexFiles = os.listdir(path='.\\data_original\\index')
 
-    indexData = getIndexData(indexFiles)
-    processCSV(fundsFiles, indexData)
+    # indexData = getIndexData(indexFiles)
+    visualization(fundsFiles)
