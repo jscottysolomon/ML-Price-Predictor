@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import csv
 import re
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
 import requests
 from bs4 import BeautifulSoup
 
@@ -97,8 +97,8 @@ def initializeDriver():
 
 if __name__ == '__main__':
 
-    if not os.path.exists("data_original/"):
-        os.mkdir("data_original/")
+    if not os.path.exists("data_original/funds/"):
+        os.mkdir("data_original/funds/")
 
     csv_driver(csvFile)
 

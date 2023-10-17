@@ -73,25 +73,49 @@ def visualization(files):
         length = len(x[0])
         try:
             if(x[OPEN][0]==0):
-                lifetimeAppreciation.append(-1)
+                # lifetimeAppreciation.append(-1)
+                
+                temp = 1
+                while(temp < length):
+                    if(x[OPEN][temp] != 0):
+                        lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][temp])
+                        break
+                    temp += 1
+
+                if(temp >= length):
+                    lifetimeAppreciation.append(1)
+                # lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][1])
+
             else:
                 lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][0])
+
             lifetimeDollarIncrease.append(float(x[OPEN][length-1])-float(x[OPEN][0]))
 
             dateFormat = "%Y-%m-%d"
 
-            lifetime.append(datetime.strptime(x[DATE][length-1],dateFormat) - 
+            delta = (datetime.strptime(x[DATE][length-1],dateFormat) - 
                             datetime.strptime(x[DATE][0],dateFormat))
+            
+            years = delta.total_seconds() / 31556952
+            
+            
+            lifetime.append(years)
             
             curr = 12
             yearlyReturn = []
             while(curr < length):
-                if(x[OPEN][curr-12] == 0):
-                    if x[OPEN][curr] != 0:
-                        yearlyReturn.append(1)
-                    else:
-                        pass
-                yearlyReturn.append(float(x[OPEN][curr])/float(x[OPEN][curr-12]))
+                if(float(x[OPEN][curr-12]) == 0):
+                    temp = 1
+                    while(temp < length):
+                        if(x[OPEN][temp] != 0):
+                            yearlyReturn.append(x[OPEN][length-1]/x[OPEN][temp])
+                            break
+                        temp += 1
+
+                    if(temp >= length):
+                        yearlyReturn.append(0)
+                else:
+                    yearlyReturn.append(float(x[OPEN][curr])/float(x[OPEN][curr-12]))
 
                 curr += 12
             
@@ -110,18 +134,63 @@ def visualization(files):
     fileString += "Lifetime Appreciation: " + str(min(lifetimeAppreciation)) + "," + str(max(lifetimeAppreciation)) + "," + str(stats.median(lifetimeAppreciation)) + "\n"
     fileString += "Lifetime Dollar Increase: " + str(min(lifetimeDollarIncrease)) + "," + str(max(lifetimeDollarIncrease)) + "," + str(stats.median(lifetimeDollarIncrease)) + "\n"
     fileString += "Median Yearly Return: " + str(min(medianYearlyAppreciation)) + "," + str(max(medianYearlyAppreciation)) + "," + str(stats.median(medianYearlyAppreciation)) + "\n"
-    fileString += "Median Yearly Return: " + str(min(lifetime)) + "," + str(max(lifetime)) + "," + str(stats.median(lifetime)) + "\n"
+    fileString += "Lifetime: " + str(min(lifetime)) + "," + str(max(lifetime)) + "," + str(stats.median(lifetime)) + "\n"
 
     print(fileString) 
 
+    print("Lifetime: ", len(lifetime))
+    print("Median yearly return: ", len(medianYearlyAppreciation))
+    print("Lifetime Dollar: ", len(lifetimeDollarIncrease))
+    print("Lifetime Appreciation: ", len(lifetimeAppreciation))
+
+
+
     df = pd.DataFrame({
         'Lifetime': lifetime,
-        'Median Yearly Return': medianYearlyAppreciation,
+        'Median Yrly Return': medianYearlyAppreciation,
+        '$ Increase': lifetimeDollarIncrease,
+        '% Appreciation': lifetimeAppreciation
 
     })
 
     correlation_matrix = df.corr(method='pearson')
     print(correlation_matrix)
+
+    plt.scatter(lifetime,medianYearlyAppreciation,label="Lifetime x Median Yearly Appreciation")
+    plt.xlabel("Lifetime by Years")
+    plt.ylabel("Median Yearly Appreciation")
+    plt.savefig("visuals/Lifetime_x_YearlyAppreciation.png")
+    plt.clf()
+
+    plt.scatter(lifetime,lifetimeDollarIncrease,label="Lifetime x Total Revenue")
+    plt.xlabel("Lifetime by Years")
+    plt.ylabel("Total Revenue in Dollars")
+    plt.savefig("visuals/Lifetime_x_Revenue.png")
+    plt.clf()
+
+    plt.scatter(lifetime,lifetimeAppreciation,label="Lifetime x Lifetime Appreciation")
+    plt.xlabel("Lifetime by Years")
+    plt.ylabel("Lifetime Appreciation")
+    plt.savefig("visuals/Lifetime_x_TotalAppreciation.png")
+    plt.clf()
+
+    plt.scatter(medianYearlyAppreciation,lifetimeDollarIncrease,label="Median Yearly Appreciation x Total Revenue")
+    plt.xlabel("Median Yearly Appreciation")
+    plt.ylabel("Total Revenue in Dollars")
+    plt.savefig("visuals/YrAppreciation_x_Revenue.png")
+    plt.clf()
+
+    plt.scatter(medianYearlyAppreciation,lifetimeAppreciation,label="Median Yearly Appreciation x Total Appreciation")
+    plt.xlabel("Median Yearly Appreciation")
+    plt.ylabel("Total Appreciation")
+    plt.savefig("visuals/YrAppreciation_x_totalAppreciation.png")
+    plt.clf()
+
+    plt.scatter(lifetimeAppreciation,lifetimeDollarIncrease,label="Total Appreciation x Total Revenue")
+    plt.xlabel("Lifetime Appreciation")
+    plt.ylabel("Lifetime Revenue")
+    plt.savefig("visuals/totalAppreciation_x_totalRevenue.png")
+    plt.clf()
 
     # print(lifetimeAppreciation)
     # print(lifetimeDollarIncrease)
