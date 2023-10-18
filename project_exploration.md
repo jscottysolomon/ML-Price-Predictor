@@ -56,4 +56,4 @@ As it stands, each fund is contained within its own self contained file. A combi
 + Median Appreciation per year
 + Lifetime Dollar Appreciation
 
-## Qualitative Dat
+## Qualitative Data

@@ -4,6 +4,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import statistics as stats
 import pandas as pd
+from collections import Counter
 
 DATE = 0
 OPEN = 1
@@ -18,8 +19,6 @@ def getIndexData(files):
     for x in files:
         fileName = "data_original\\index\\" + x
         data = [[],[],[],[],[]]
-        openings = []
-        
 
         with open(fileName, encoding="utf8") as csvfile:
             reader = csv.DictReader(csvfile)
@@ -119,24 +118,61 @@ def visualization(files):
 
                 curr += 12
             
-            medianYearlyAppreciation.append(stats.median(yearlyReturn))
+            if(len(yearlyReturn) == 0):
+                medianYearlyAppreciation.append(0)
+            else:
+                medianYearlyAppreciation.append(stats.median(yearlyReturn))
             
         except Exception as e:
             print(e)
             pass
 
+    fundType = []
+    i = 0
+    fundLength = len(files)
+
+    # Opening up original csv file
+    with open("data_original/funds.csv", encoding="utf8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            name = (row['symbol'])
+            category = (row['category_group'])
+            fundName = files[i].split(".")
+            if(fundName[0] == name):
+                if(category != ''):
+                    fundType.append(category)
+                    # print(category)
+                i += 1
+            
+            if(i >= fundLength):
+                break
     
+    fundTuple = tuple(fundType)
+    stringCounts = Counter(fundTuple)
+
+    mostUsed = stringCounts.most_common(1)
+    leastUsed = stringCounts.most_common()[-1]       
+    uniqueCategories = len(stringCounts)
+
 
     if not os.path.exists("data_processed/"):
         os.mkdir("data_processed/")
         
+    # Creating Stats Strings
     fileString = "Statistic: Minimum, Maximum, Average\n"
     fileString += "Lifetime Appreciation: " + str(min(lifetimeAppreciation)) + "," + str(max(lifetimeAppreciation)) + "," + str(stats.median(lifetimeAppreciation)) + "\n"
     fileString += "Lifetime Dollar Increase: " + str(min(lifetimeDollarIncrease)) + "," + str(max(lifetimeDollarIncrease)) + "," + str(stats.median(lifetimeDollarIncrease)) + "\n"
     fileString += "Median Yearly Return: " + str(min(medianYearlyAppreciation)) + "," + str(max(medianYearlyAppreciation)) + "," + str(stats.median(medianYearlyAppreciation)) + "\n"
-    fileString += "Lifetime: " + str(min(lifetime)) + "," + str(max(lifetime)) + "," + str(stats.median(lifetime)) + "\n"
+    fileString += "Lifetime: " + str(min(lifetime)) + "," + str(max(lifetime)) + "," + str(stats.median(lifetime)) + "\n\n"
 
+    # Qualitative data
+    fileString += "Qualitative: Number of Categories, Most Common, Least Common\n"
+    fileString += "Fund Category: " + str(uniqueCategories) + ", " + str(mostUsed) + ", " + str(leastUsed)
+
+    # Writing stats to file
     print(fileString) 
+    with open("data_processed/correlations.txt","w") as file:
+        file.write(fileString)
 
     print("Lifetime: ", len(lifetime))
     print("Median yearly return: ", len(medianYearlyAppreciation))
@@ -156,177 +192,48 @@ def visualization(files):
     correlation_matrix = df.corr(method='pearson')
     print(correlation_matrix)
 
-    plt.scatter(lifetime,medianYearlyAppreciation,label="Lifetime x Median Yearly Appreciation")
+    plt.scatter(lifetime,medianYearlyAppreciation)
+    plt.title("Lifetime x Median Yearly Appreciation")
     plt.xlabel("Lifetime by Years")
     plt.ylabel("Median Yearly Appreciation")
     plt.savefig("visuals/Lifetime_x_YearlyAppreciation.png")
     plt.clf()
 
-    plt.scatter(lifetime,lifetimeDollarIncrease,label="Lifetime x Total Revenue")
+    plt.scatter(lifetime,lifetimeDollarIncrease)
+    plt.title("Lifetime x Total Revenue")
     plt.xlabel("Lifetime by Years")
     plt.ylabel("Total Revenue in Dollars")
     plt.savefig("visuals/Lifetime_x_Revenue.png")
     plt.clf()
 
-    plt.scatter(lifetime,lifetimeAppreciation,label="Lifetime x Lifetime Appreciation")
+    plt.scatter(lifetime,lifetimeAppreciation)
+    plt.title("Lifetime x Lifetime Appreciation")
     plt.xlabel("Lifetime by Years")
     plt.ylabel("Lifetime Appreciation")
     plt.savefig("visuals/Lifetime_x_TotalAppreciation.png")
     plt.clf()
 
-    plt.scatter(medianYearlyAppreciation,lifetimeDollarIncrease,label="Median Yearly Appreciation x Total Revenue")
+    plt.scatter(medianYearlyAppreciation,lifetimeDollarIncrease)
+    plt.title("Median Yearly Appreciation x Total Revenue")
     plt.xlabel("Median Yearly Appreciation")
     plt.ylabel("Total Revenue in Dollars")
     plt.savefig("visuals/YrAppreciation_x_Revenue.png")
     plt.clf()
 
-    plt.scatter(medianYearlyAppreciation,lifetimeAppreciation,label="Median Yearly Appreciation x Total Appreciation")
+    plt.scatter(medianYearlyAppreciation,lifetimeAppreciation)
+    plt.title("Median Yearly Appreciation x Total Appreciation")
     plt.xlabel("Median Yearly Appreciation")
     plt.ylabel("Total Appreciation")
     plt.savefig("visuals/YrAppreciation_x_totalAppreciation.png")
     plt.clf()
 
-    plt.scatter(lifetimeAppreciation,lifetimeDollarIncrease,label="Total Appreciation x Total Revenue")
+    plt.scatter(lifetimeAppreciation,lifetimeDollarIncrease)
+    plt.title("Total Appreciation x Total Revenue")
     plt.xlabel("Lifetime Appreciation")
     plt.ylabel("Lifetime Revenue")
     plt.savefig("visuals/totalAppreciation_x_totalRevenue.png")
     plt.clf()
 
-    # print(lifetimeAppreciation)
-    # print(lifetimeDollarIncrease)
-    # print(max(lifetime))
-    # print(stats.median(medianYearlyAppreciation))
-
-# def median(lst):
-
-
-def processCSV(files, indexData):
-    i = 0
-
-    for x in files:
-
-        try:
-            fileName = "data_original\\funds\\" + x
-            fundData = [[],[],[],[],[]]
-
-            print(x)
-            
-
-            with open(fileName, encoding="utf8") as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    fundData[0].append(row['Date'])
-                    fundData[1].append(row['Open'])
-                    fundData[2].append(row['High'])
-                    fundData[3].append(row['Low'])
-                    fundData[4].append(row['Close'])
-
-            length = len(fundData[0])
-
-            for x in indexData:
-                indexLength = len(x[0])
-                curr = 0
-                fundLength = len(fundData[0])
-                fundCurr = 0
-                outPerformed = 0
-                underPerformed = 0
-
-                
-                # print(date)
-                while (curr < indexLength and fundCurr < fundLength):
-                    # Matching Starting Dates
-                    date = fundData[DATE][fundCurr]
-                    # print(x[OPEN])
-                    
-                    # print(date, " ", [x][0][0][curr])
-                    dateFormat = "%Y-%m-%d"
-
-                    fundDate = datetime.strptime(date, dateFormat)
-                    indexDate = datetime.strptime(x[DATE][curr], dateFormat)
-
-                    if(fundDate == indexDate):
-                        if(fundCurr > 12):
-                            try:
-                                fundAppreciation = (float(fundData[OPEN][fundCurr]) / float(fundData[OPEN][fundCurr - 12]))
-                                indexAppreciation = (float(x[OPEN][curr]) / float(x[OPEN][curr - 12]))
-
-                                print(date, " ", fundData[OPEN][fundCurr], " ",fundData[OPEN][fundCurr - 12], " ", fundAppreciation, "|\t", x[OPEN][curr], " ", x[OPEN][curr - 12], " ", indexAppreciation)
-                                # print(fundAppreciation, " " , indexAppreciation)
-                                if(indexAppreciation > fundAppreciation):
-                                    underPerformed += 1
-                                else:
-                                    outPerformed += 1
-                            except Exception as e:
-                                pass
-                        
-                        curr +=12
-                        fundCurr += 12
-                    elif(fundDate > indexDate):
-                        curr += 1
-                        
-                    else:
-                        fundCurr += 1
-                # 
-            # print("    Fund outperformed S&P ", (outPerformed / (outPerformed + underPerformed)),"% of the time" )
-            percent.append(outPerformed/ (outPerformed + underPerformed))               
-
-            for x in indexData:
-                pass
-        except Exception as e:
-            # print(e)
-            pass
-
-        # print("Outperformed S&P ", (outPerformed / (outPerformed + underPerformed)),"% of the time" )
-        if(i >= 1000):
-            break
-            
-        i+= 1
-
-    
-    fifty = 0
-    seventyFive = 0
-    ninety = 0
-    hundred = 0
-
-    quarters = [0,0,0,0,0]
-
-    for x in percent:
-        if(x >= 0.5 and x < 0.75):
-            fifty += 1
-        if(x >= 0.75 and x < 0.9):
-            seventyFive += 1
-        if(x >= 0.9 and x < 1):
-            seventyFive += 1
-        if(x == 1):
-            hundred += 1
-
-        if(x >= 0.5):
-            quarters[0] += 1
-        elif(x >= 0.25):
-            quarters[1] += 1
-        elif(x >= 0.1): 
-            quarters[2] += 1
-        elif(x > 0 and x < 0.1):
-            quarters[3] += 1
-        else:
-            quarters[4] += 1
-
-    labels = ["50-100%", "25-49%", "10-24%", "Less than 10%", "0%"]
-
-    plt.title("Percent of time that a fund outperforms the S&P 500")
-
-    print(fifty)
-    print(seventyFive)
-    print(ninety)
-    print(hundred)
-    plt.pie(quarters, labels=labels, autopct='%1.1f%%')
-    plt.savefig("visuals/comparison.png")
-    plt.show()
-    
-
 if __name__ == '__main__':
     fundsFiles = os.listdir(path='.\\data_original\\funds')
-    # indexFiles = os.listdir(path='.\\data_original\\index')
-
-    # indexData = getIndexData(indexFiles)
     visualization(fundsFiles)

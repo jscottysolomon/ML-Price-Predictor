@@ -2,17 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 import csv
-import re
-# from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
+import random
 import requests
-from bs4 import BeautifulSoup
-
-# import RegExp
+import hashlib
 
 __author__ = "J. Scotty Solomon"
 __date__ = "25-September-23"
-__assignment = "SER494: Homework 2 Q4 Programming"
+__assignment = "SER494: Milestone 2"
 
 # stop_words = set(stopwords.words('english'))
 csvFile = "data_original/funds.csv"
@@ -20,20 +16,13 @@ yahooFinance = "https://finance.yahoo.com/quote/"
 options = "/history?period1=1265846400&period2=1697155200&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true"
 
 # options
-scroll_count = 6
+LIST_LENGTH = 1000
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
 }
 
 url = ["https://query1.finance.yahoo.com/v7/finance/download/","?period1=1265846400&period2=1697155200&interval=1mo&events=history&includeAdjustedClose=true"]
-
-
-
-# temp = "https://finance.yahoo.com/quote/SQQQ/history?period1=1265846400&period2=1697155200&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true"
-
-temp = "https://query1.finance.yahoo.com/v7/finance/download/SQQQ?period1=1265846400&period2=1697155200&interval=1mo&events=history&includeAdjustedClose=true"
-
 
 def web_scrapping(url, fundName):
     response = requests.get(url, headers=headers)
@@ -46,61 +35,110 @@ def web_scrapping(url, fundName):
     else: 
         print("Could not connect to page")
 
-def webDriver(driver, url):
-    driver.get(url)
-    
-
-    # for _ in range(scroll_count):
-    #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # Add a delay to allow the new content to load (you may need to adjust this)
-        # time.sleep(2)
-
-    # Get the page source after scrolling
-    page_source = driver.page_source
-    # print(page_source)
-
-    filePath = "test.html"
-
-    with open(filePath, 'w', encoding='utf-8') as file:
-        file.write(page_source)
-
-# def
-    
-
 def csv_driver(fileName):
+    allTickers = []
     with open(fileName, encoding="utf8") as csvfile:
         
         reader = csv.DictReader(csvfile)
         for row in reader:
             ticker = (row['symbol'])
             market = (row['market'])
-            if(ticker != '' and market == "us_market"):  
-                searchURL = url[0] + ticker + url[1]
-                print(searchURL)
-                web_scrapping(searchURL, ticker)
+            category = (row['category_group'])
+            if(ticker != '' and market == "us_market" and category != ''): 
+                allTickers.append(ticker) 
+    
+    tickers = random.sample(allTickers, LIST_LENGTH)
+
+                
+    for ticker in tickers:
+        searchURL = url[0] + ticker + url[1]
+        print(searchURL)
+        web_scrapping(searchURL, ticker)
                 # return
+def createFundList():
+    files = os.listdir(path='.\\data_original\\funds')
+    fundNames = []
+    
+    for x in files:
+        fileName = x.split(".")
+        fundNames.append(fileName[0])
 
-            
+    with open("data_processed/funds.csv", mode='w', newline=' ') as file:
+        writer = csv.writer(file)
 
-def initializeDriver():
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')  # This line enables headless mode
+        for x in fundNames:
+            writer.writerow([x])
 
-    # Initialize the WebDriver with the headless option
-    driver = webdriver.Chrome(options=chrome_options)
+def createCSV():
+    tickers = []
+    funds = os.listdir(path='.\\data_original\\funds')
+    for x in funds:
+        fileName = x.split(".")
+        fundName = fileName[0]
+        tickers.append(fundName)
+    
+    with open("data_processed/funds.csv", mode='w', newline='') as file:
+        writer = csv.writer(file)
 
-    return driver
+        for fund in tickers:
+            writer.writerow([fund])
 
-# web_scrapping(temp)
-# csv_driver()
-# webDriver(temp)
+def manualWebScrape(fileName):
+    if not os.path.exists("data_original/funds/"):
+        os.mkdir("data_original/funds/")
+        
+    with open(fileName, encoding="utf8") as csvfile:
+        
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            ticker = (row['ticker'])
+
+            searchURL = url[0] + ticker + url[1]
+            print(searchURL)
+            web_scrapping(searchURL, ticker)
+
+def md5Hash():
+    hashString = ''
+
+    md5_hash = hashlib.md5()
+
+    # Original Ticker Lists
+    with open("data_original\\funds.csv", 'rb') as file:
+        while True:
+            data = file.read(8192)  # Read 8KB at a time
+            if not data:
+                break
+            md5_hash.update(data)
+
+    hashString += "data_original\\funds.csv" + ": " + md5_hash.hexdigest() + "\n"
+
+    hashFiles = os.listdir(path='.\\data_original\\funds')
+
+    # Scrapped CSV Files
+    for file in hashFiles: 
+        fileName = ".\\data_original\\funds\\" + file       
+        with open(fileName, 'rb') as file:
+            while True:
+                data = file.read(8192)  # Read 8KB at a time
+                if not data:
+                    break
+                md5_hash.update(data)
+
+        hashString += fileName + ": " + md5_hash.hexdigest() + "\n"
+
+    with open("data_processed/hashes.txt","w") as file:
+        file.write(hashString)
+
 
 if __name__ == '__main__':
 
-    if not os.path.exists("data_original/funds/"):
-        os.mkdir("data_original/funds/")
+    # 
 
-    csv_driver(csvFile)
+    # csv_driver(csvFile)
+
+    # createCSV()
+    # manualWebScrape("data_processed/funds.csv")
+    md5Hash()
 
     
     # web_scrapping(temp,"SQQQ")
