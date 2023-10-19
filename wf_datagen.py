@@ -8,9 +8,8 @@ import hashlib
 
 __author__ = "J. Scotty Solomon"
 __date__ = "25-September-23"
-__assignment = "SER494: Milestone 2"
+__assignment = "SER494: Milestone 3"
 
-# stop_words = set(stopwords.words('english'))
 csvFile = "data_original/funds.csv"
 yahooFinance = "https://finance.yahoo.com/quote/"
 options = "/history?period1=1265846400&period2=1697155200&interval=1mo&filter=history&frequency=1mo&includeAdjustedClose=true"
@@ -21,9 +20,9 @@ LIST_LENGTH = 1000
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
 }
-
 url = ["https://query1.finance.yahoo.com/v7/finance/download/","?period1=1265846400&period2=1697155200&interval=1mo&events=history&includeAdjustedClose=true"]
 
+# Scraping csv and saving to funds/ folder
 def web_scrapping(url, fundName):
     response = requests.get(url, headers=headers)
 
@@ -35,6 +34,7 @@ def web_scrapping(url, fundName):
     else: 
         print("Could not connect to page")
 
+# Used to get random sub array from all funds in original list
 def csv_driver(fileName):
     allTickers = []
     with open(fileName, encoding="utf8") as csvfile:
@@ -55,6 +55,7 @@ def csv_driver(fileName):
         print(searchURL)
         web_scrapping(searchURL, ticker)
                 # return
+
 def createFundList():
     files = os.listdir(path='.\\data_original\\funds')
     fundNames = []
@@ -69,6 +70,7 @@ def createFundList():
         for x in fundNames:
             writer.writerow([x])
 
+# Used to get the list of the funds peers should scrape for
 def createCSV():
     tickers = []
     funds = os.listdir(path='.\\data_original\\funds')
@@ -84,11 +86,12 @@ def createCSV():
             writer.writerow([fund])
 
 def manualWebScrape(fileName):
+    # Creating directory
     if not os.path.exists("data_original/funds/"):
         os.mkdir("data_original/funds/")
-        
+
+    # Creating search URL from fund name  
     with open(fileName, encoding="utf8") as csvfile:
-        
         reader = csv.DictReader(csvfile)
         for row in reader:
             ticker = (row['ticker'])
@@ -97,12 +100,13 @@ def manualWebScrape(fileName):
             print(searchURL)
             web_scrapping(searchURL, ticker)
 
+# Used to get hash values for files
 def md5Hash():
     hashString = ''
 
     md5_hash = hashlib.md5()
 
-    # Original Ticker Lists
+    # Original Ticker List
     with open("data_original\\funds.csv", 'rb') as file:
         while True:
             data = file.read(8192)  # Read 8KB at a time
@@ -114,7 +118,7 @@ def md5Hash():
 
     hashFiles = os.listdir(path='.\\data_original\\funds')
 
-    # Scrapped CSV Files
+    # Web-Scraped CSV Files
     for file in hashFiles: 
         fileName = ".\\data_original\\funds\\" + file       
         with open(fileName, 'rb') as file:
@@ -126,23 +130,10 @@ def md5Hash():
 
         hashString += fileName + ": " + md5_hash.hexdigest() + "\n"
 
+    # Writing data to file
     with open("data_processed/hashes.txt","w") as file:
         file.write(hashString)
 
 
 if __name__ == '__main__':
-
-    # 
-
-    # csv_driver(csvFile)
-
-    # createCSV()
-    # manualWebScrape("data_processed/funds.csv")
     md5Hash()
-
-    
-    # web_scrapping(temp,"SQQQ")
-    # driver = initializeDriver()
-    
-    # webDriver(driver, temp)
-    # driver.quit()

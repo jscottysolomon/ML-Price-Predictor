@@ -46,7 +46,7 @@ def visualization(files):
 
         print(x)
         
-
+        # Extracting Each row from csv
         with open(fileName, encoding="utf8") as csvfile:
             reader = csv.DictReader(csvfile)
             try:
@@ -64,16 +64,12 @@ def visualization(files):
         i += 1
         if(i > 1000):
             break
-
-    
-    # print(fundData)    
-    i = 0
+  
     for x in fundData:
         length = len(x[0])
         try:
-            if(x[OPEN][0]==0):
-                # lifetimeAppreciation.append(-1)
-                
+            # Lifetime Appreciation Calculation
+            if(x[OPEN][0]==0):                
                 temp = 1
                 while(temp < length):
                     if(x[OPEN][temp] != 0):
@@ -83,30 +79,22 @@ def visualization(files):
 
                 if(temp >= length):
                     lifetimeAppreciation.append(1)
-                # lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][1])
-
             else:
                 lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][0])
-            
-            if(float(x[OPEN][length-1])-float(x[OPEN][0]) < -250):
-                print("WEHOOOO")
-                print(files[i])
 
-            i+= 1
+            # Total Revenue
             lifetimeDollarIncrease.append(float(x[OPEN][length-1])-float(x[OPEN][0]))
 
+            # Fund Age
             dateFormat = "%Y-%m-%d"
 
             delta = (datetime.strptime(x[DATE][length-1],dateFormat) - 
                             datetime.strptime(x[DATE][0],dateFormat))
             
             years = delta.total_seconds() / 31556952
-            
-            
             lifetime.append(years)
-
-            i += 0
             
+            # Getting All Yearly Return
             curr = 12
             yearlyReturn = []
             while(curr < length):
@@ -124,7 +112,7 @@ def visualization(files):
                     yearlyReturn.append(float(x[OPEN][curr])/float(x[OPEN][curr-12]))
 
                 curr += 12
-            
+            # Calculate median yearly return
             if(len(yearlyReturn) == 0):
                 medianYearlyAppreciation.append(1)
             else:
@@ -138,7 +126,7 @@ def visualization(files):
     i = 0
     fundLength = len(files)
 
-    # Opening up original csv file
+    # Getting fund types from original file
     with open("data_original/funds.csv", encoding="utf8") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -157,6 +145,11 @@ def visualization(files):
     fundTuple = tuple(fundType)
     stringCounts = Counter(fundTuple)
 
+    # Histogram data
+    cats = list(stringCounts.keys())
+    counts = list(stringCounts.values())
+
+    # Qualitative Stats Data
     mostUsed = stringCounts.most_common(1)
     leastUsed = stringCounts.most_common()[-1]       
     uniqueCategories = len(stringCounts)
@@ -181,13 +174,7 @@ def visualization(files):
     with open("data_processed/summary.txt","w") as file:
         file.write(fileString)
 
-    print("Lifetime: ", len(lifetime))
-    print("Median yearly return: ", len(medianYearlyAppreciation))
-    print("Lifetime Dollar: ", len(lifetimeDollarIncrease))
-    print("Lifetime Appreciation: ", len(lifetimeAppreciation))
-
-
-
+    # Making Correlation Matrix
     df = pd.DataFrame({
         'Lifetime': lifetime,
         'Median Yrly Return': medianYearlyAppreciation,
@@ -197,12 +184,13 @@ def visualization(files):
     })
 
     correlation_matrix = df.corr(method='pearson')
-    
     correlations = str(correlation_matrix)
 
+    # Writing Correlations Matrix
     with open("data_processed/correlations.txt","w") as file:
         file.write(correlations)
 
+    # Making Visuals
     plt.scatter(lifetime,medianYearlyAppreciation)
     plt.title("Lifetime x Median Yearly Appreciation")
     plt.xlabel("Lifetime by Years")
@@ -243,6 +231,16 @@ def visualization(files):
     plt.xlabel("Lifetime Appreciation")
     plt.ylabel("Lifetime Revenue")
     plt.savefig("visuals/totalAppreciation_x_totalRevenue.png")
+    plt.clf()
+
+    # Histogram of Qualitative data
+    plt.bar(cats, counts)
+    plt.xlabel("Categories")
+    plt.ylabel("Frequency")
+    plt.xticks(rotation=45)
+    plt.title("Frequency of Fund Types")
+    plt.tight_layout()
+    plt.savefig("visuals/fundTypes.png")
     plt.clf()
 
 if __name__ == '__main__':
