@@ -67,7 +67,7 @@ def visualization(files):
 
     
     # print(fundData)    
-    
+    i = 0
     for x in fundData:
         length = len(x[0])
         try:
@@ -87,7 +87,12 @@ def visualization(files):
 
             else:
                 lifetimeAppreciation.append(x[OPEN][length-1]/x[OPEN][0])
+            
+            if(float(x[OPEN][length-1])-float(x[OPEN][0]) < -250):
+                print("WEHOOOO")
+                print(files[i])
 
+            i+= 1
             lifetimeDollarIncrease.append(float(x[OPEN][length-1])-float(x[OPEN][0]))
 
             dateFormat = "%Y-%m-%d"
@@ -99,6 +104,8 @@ def visualization(files):
             
             
             lifetime.append(years)
+
+            i += 0
             
             curr = 12
             yearlyReturn = []
@@ -119,7 +126,7 @@ def visualization(files):
                 curr += 12
             
             if(len(yearlyReturn) == 0):
-                medianYearlyAppreciation.append(0)
+                medianYearlyAppreciation.append(1)
             else:
                 medianYearlyAppreciation.append(stats.median(yearlyReturn))
             
@@ -171,7 +178,7 @@ def visualization(files):
 
     # Writing stats to file
     print(fileString) 
-    with open("data_processed/correlations.txt","w") as file:
+    with open("data_processed/summary.txt","w") as file:
         file.write(fileString)
 
     print("Lifetime: ", len(lifetime))
@@ -190,7 +197,11 @@ def visualization(files):
     })
 
     correlation_matrix = df.corr(method='pearson')
-    print(correlation_matrix)
+    
+    correlations = str(correlation_matrix)
+
+    with open("data_processed/correlations.txt","w") as file:
+        file.write(correlations)
 
     plt.scatter(lifetime,medianYearlyAppreciation)
     plt.title("Lifetime x Median Yearly Appreciation")

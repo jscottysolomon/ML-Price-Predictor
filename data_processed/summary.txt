@@ -1,0 +1,8 @@
+Statistic: Minimum, Maximum, Average
+Lifetime Appreciation: 0.19670542635658914,6.675438421052632,1.0119863013698631
+Lifetime Dollar Increase: -64.11000100000001,155.840004,0.13000000000000078
+Median Yearly Return: 0.7560657592820128,1.303679089026915,1.006158545034642
+Lifetime: 0.0,13.585494568676975,12.082383621840284
+
+Qualitative: Number of Categories, Most Common, Least Common
+Fund Category: 8, [('Equities', 774)], ('Miscellaneous', 1)

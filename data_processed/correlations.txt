@@ -1,8 +1,5 @@
-Statistic: Minimum, Maximum, Average
-Lifetime Appreciation: 0.010631377551020409,6.675438421052632,1.0115375055236413
-Lifetime Dollar Increase: -1551.33,155.840004,0.1200000000000001
-Median Yearly Return: 0,1.303679089026915,1.0060163025234998
-Lifetime: 0.0,13.585494568676975,12.082383621840284
-
-Qualitative: Number of Categories, Most Common, Least Common
-Fund Category: 8, [('Equities', 775)], ('Miscellaneous', 1)
+                    Lifetime  Median Yrly Return  $ Increase  % Appreciation
+Lifetime            1.000000            0.082959    0.213231        0.274184
+Median Yrly Return  0.082959            1.000000    0.484774        0.556747
+$ Increase          0.213231            0.484774    1.000000        0.768408
+% Appreciation      0.274184            0.556747    0.768408        1.000000

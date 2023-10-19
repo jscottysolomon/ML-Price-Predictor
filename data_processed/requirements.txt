@@ -1,0 +1,12 @@
+Requirements:
+- requests
+-stanard python library
+	-os
+	-csv
+	-hashlib
+	-random
+	-datetime
+	-statistics
+- matplotlib
+- numpy
+- pandas
