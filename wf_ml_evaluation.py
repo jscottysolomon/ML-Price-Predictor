@@ -13,6 +13,7 @@ import math
 from wf_ml_prediction import createIndividualPrediction 
 from wf_ml_prediction import createPolyPrediction
 from wf_ml_prediction import createLaggedPrediction
+from wf_ml_prediction import createCollectivePredictions
 
 splitPercent = 0.8
 
@@ -89,8 +90,8 @@ def collective():
 
         splitIndex = int(splitPercent * len(df))
 
-        startPrice = df.loc[0,'Open']
-        relativeEndPrice = df.loc[splitIndex,'Open']
+        # startPrice = df.loc[0,'Open']
+        # relativeEndPrice = df.loc[splitIndex,'Open']
         # deltaDays = (pd.to_datetime(df.loc[splitIndex,'Date']) - pd.to_datetime(df.loc[0,'Date'])).days
         # appreciation = relativeEndPrice / startPrice
 
@@ -111,9 +112,9 @@ def collective():
 
             length = len(X)
             # print(i)
-            model = tr.addToModel(X_train,Y_train)
+            model = tr.addToModel(model,X_train,Y_train)
         except Exception as e:
-            pass
+            print(e)
 
 
     tr.writeModel(model,"collective","collective")
@@ -125,3 +126,4 @@ if __name__ == '__main__':
     # createIndividualPrediction()
     # createPolyPrediction()
     # createLaggedPrediction()
+    # createCollectivePredictions()

@@ -193,8 +193,10 @@ def createCollectivePredictions():
 
     pickleFile = os.path.join("models", "collective", "collective.pkl")
 
-    global_x_test = []
-    global_y_test = []
+    global_y_expected = []
+    global_y_predicted = []
+
+    model = None
 
     with open(pickleFile, 'rb') as file:
         model = pickle.load(file)
@@ -202,6 +204,9 @@ def createCollectivePredictions():
     i = 0
 
     for x in fundsFiles:
+        ii = 0
+
+
         fileName = os.path.join("data_original", "funds",x)
         
         df = pd.read_csv(fileName, names=columnNames, skiprows=1)
@@ -223,10 +228,26 @@ def createCollectivePredictions():
             
 
             length = len(X) - len(X_train)
-            # print(i)
-            model = tr.addToModel(X_train,Y_train)
-        except Exception as e:
-            pass
+            while(ii < (length-1)):
+                X_test = X.iloc[:(splitIndex+ii)]
+                
+                y_expected = X['Open'].iloc[splitIndex+ii+1] / X['Open'].iloc[splitIndex+ii]
+                y_pred = model.predict(X_test)
 
-        if(i < 10):
-            pass
+                global_y_expected.append(y_expected)
+                global_y_expected.append(y_pred)
+
+                print(y_expected, y_pred)
+
+                ii += 1
+                pass
+
+
+            # print(i)
+            # model = tr.addToModel(X_train,Y_train)
+        except Exception as e:
+             if(i < 10):
+                print(e)
+
+        i += 1
+            # pass
