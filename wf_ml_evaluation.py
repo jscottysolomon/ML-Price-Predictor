@@ -110,6 +110,11 @@ def collective():
             X_train = X.iloc[:splitIndex-1]
             Y_train = X['Open'].iloc[splitIndex] / X['Open'].iloc[splitIndex-1]
 
+            # Y_train_input = np.array([Y_train])
+            # Y_train_input = Y_train_input.reshape(-1, 1)
+            Y_train_input = Y_train.reshape(-1,1)
+            # print(X_train, Y_train_input)
+            print(Y_train_input)
             length = len(X)
             # print(i)
             model = tr.addToModel(model,X_train,Y_train)
@@ -121,9 +126,9 @@ def collective():
 
 
 if __name__ == '__main__':
-    # individual()
-    collective()
-    # createIndividualPrediction()
-    # createPolyPrediction()
-    # createLaggedPrediction()
+    individual()
+    # collective()
+    createIndividualPrediction()
+    createPolyPrediction()
+    createLaggedPrediction()
     # createCollectivePredictions()

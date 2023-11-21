@@ -38,7 +38,8 @@ def createPolyModel(fileName, folder, X_train, Y_train):
         with open(modelFileName, 'wb') as file:
             pickle.dump(model, file)
     except Exception as e:
-        print(e)
+        pass
+        # print(e)
 
 def addToModel(model, X_train, Y_train):
     try:
@@ -46,7 +47,7 @@ def addToModel(model, X_train, Y_train):
         ret.fit(X_train, Y_train)
         return ret
     except Exception as e:
-        print(e)
+        # print(e)
         return model
     
 def writeModel(model, folder, fileName):
@@ -57,7 +58,8 @@ def writeModel(model, folder, fileName):
         with open(modelFileName, 'wb') as file:
             pickle.dump(model, file)
     except Exception as e:
-        print(e)
+        pass
+        # print(e)
         
 
 

@@ -19,6 +19,8 @@ def createIndividualPrediction():
 
     i = 0
 
+    statsString = ""
+
     for x in fundsFiles:
         model = None
 
@@ -44,24 +46,48 @@ def createIndividualPrediction():
             X_test_array = X_test.values.reshape(-1, 1)
 
             y_pred = model.predict(X_test_array)
-            # temp_mse = (mean_squared_error(Y_test, y_pred))
-            # temp_r2 = (r2_score(Y_test, y_pred))
-            # temp_mae = mean_absolute_error(Y_test, y_pred)
+            temp_mse = (mean_squared_error(Y_test, y_pred))
+            temp_r2 = (r2_score(Y_test, y_pred))
+            temp_mae = mean_absolute_error(Y_test, y_pred)
+
+            statsString += x + "\tmse " + str(temp_mse) + ",\tr2 " + str(temp_r2) + ",\tmae: " + str(temp_mae) + "\n"
 
             # print(temp_mse, temp_r2, temp_mae)
 
             mse.append(mean_squared_error(Y_test, y_pred))
             r2.append(r2_score(Y_test, y_pred))
             mae.append(mean_absolute_error(Y_test, y_pred))
+
+            # if(i < 3):
+            # if(len(y_pred) > 30):
+            # print(x, "\t", y_pred)
+            i += 1
             
             # mse)
 
         except Exception as e:
             pass
 
-    print(min(r2), max(r2), stats.median(r2))
-    print(min(mse), max(mse), stats.median(mse))
-    print(min(mae), max(mae), stats.median(mae))
+    ret = ""
+
+    ret += "Metric, \tMin, \tMax, \tMedian\n"
+    ret += "r2: " + str(min(r2)) + ",\t " + str(max(r2)) + ",\t" + str(stats.median(r2)) + "\n"
+    ret += "mse: " + str(min(mse)) + ",\t" + str(max(mse)) + ",\t" + str(stats.median(mse)) + "\n"
+    ret += "mae: " + str(min(mae)) + ",\t" + str(max(mae)) + ",\t" + str(stats.median(mae)) + "\n"
+    ret += "\n"
+
+    
+    ret += statsString
+
+    fileName = os.path.join("evaluation", "summary.individual.txt")
+
+    with open(fileName,"w") as file:
+        file.write(ret)
+    # print(min(r2), max(r2), stats.median(r2))
+    # print(min(mse), max(mse), stats.median(mse))
+    # print(min(mae), max(mae), stats.median(mae))
+
+
 
 def createLaggedPrediction():
     fundsFiles = os.listdir(path='./data_original/funds')
@@ -71,6 +97,7 @@ def createLaggedPrediction():
     mae = []
 
     i = 0
+    statsString = ""
 
     for x in fundsFiles:
         model = None
@@ -104,6 +131,12 @@ def createLaggedPrediction():
 
             y_pred = model.predict(X_test)
 
+            temp_mse = (mean_squared_error(Y_test, y_pred))
+            temp_r2 = (r2_score(Y_test, y_pred))
+            temp_mae = mean_absolute_error(Y_test, y_pred)
+
+            statsString += x + "\tmse " + str(temp_mse) + ",\tr2 " + str(temp_r2) + ",\tmae: " + str(temp_mae) + "\n"
+
             # temp_mse = (mean_squared_error(Y_test, y_pred))
             # temp_r2 = (r2_score(Y_test, y_pred))
             # temp_mae = mean_absolute_error(Y_test, y_pred)
@@ -117,14 +150,29 @@ def createLaggedPrediction():
             # mse)
 
         except Exception as e:
-            print(e)
             pass
 
     r2 = list(filter(lambda x: not math.isnan(x), r2))
 
-    print(min(r2), max(r2), stats.median(r2))
-    print(min(mse), max(mse), stats.median(mse))
-    print(min(mae), max(mae), stats.median(mae))
+    # print(min(r2), max(r2), stats.median(r2))
+    # print(min(mse), max(mse), stats.median(mse))
+    # print(min(mae), max(mae), stats.median(mae))
+
+    ret = ""
+
+    ret += "Metric, \tMin, \tMax, \tMedian\n"
+    ret += "r2: " + str(min(r2)) + ",\t " + str(max(r2)) + ",\t" + str(stats.median(r2)) + "\n"
+    ret += "mse: " + str(min(mse)) + ",\t" + str(max(mse)) + ",\t" + str(stats.median(mse)) + "\n"
+    ret += "mae: " + str(min(mae)) + ",\t" + str(max(mae)) + ",\t" + str(stats.median(mae)) + "\n"
+    ret += "\n"
+
+    
+    ret += statsString
+
+    fileName = os.path.join("evaluation", "summary.lagged.txt")
+
+    with open(fileName,"w") as file:
+        file.write(ret)
 
 def createPolyPrediction():
     fundsFiles = os.listdir(path='./data_original/funds')
@@ -134,6 +182,7 @@ def createPolyPrediction():
     mae = []
 
     i = 0
+    statsString = ""
 
     for x in fundsFiles:
         model = None
@@ -166,6 +215,12 @@ def createPolyPrediction():
 
             y_pred = model.predict(X_poly)
 
+            temp_mse = (mean_squared_error(Y_test, y_pred))
+            temp_r2 = (r2_score(Y_test, y_pred))
+            temp_mae = mean_absolute_error(Y_test, y_pred)
+
+            statsString += x + "\tmse " + str(temp_mse) + ",\tr2 " + str(temp_r2) + ",\tmae: " + str(temp_mae) + "\n"
+
             # temp_mse = (mean_squared_error(Y_test, y_pred))
             # temp_r2 = (r2_score(Y_test, y_pred))
             # temp_mae = mean_absolute_error(Y_test, y_pred)
@@ -176,16 +231,32 @@ def createPolyPrediction():
             r2.append(r2_score(Y_test, y_pred))
             mae.append(mean_absolute_error(Y_test, y_pred))
 
-            print(x)
+            # print(x)
             
             # mse)
 
         except Exception as e:
-            print(e)
+            pass
 
-    print(min(r2), max(r2), stats.median(r2))
-    print(min(mse), max(mse), stats.median(mse))
-    print(min(mae), max(mae), stats.median(mae))
+    # print(min(r2), max(r2), stats.median(r2))
+    # print(min(mse), max(mse), stats.median(mse))
+    # print(min(mae), max(mae), stats.median(mae))
+
+    ret = ""
+
+    ret += "Metric, \tMin, \tMax, \tMedian\n"
+    ret += "r2: " + str(min(r2)) + ",\t " + str(max(r2)) + ",\t" + str(stats.median(r2)) + "\n"
+    ret += "mse: " + str(min(mse)) + ",\t" + str(max(mse)) + ",\t" + str(stats.median(mse)) + "\n"
+    ret += "mae: " + str(min(mae)) + ",\t" + str(max(mae)) + ",\t" + str(stats.median(mae)) + "\n"
+    ret += "\n"
+
+    
+    ret += statsString
+
+    fileName = os.path.join("evaluation", "summary.polynomial.txt")
+
+    with open(fileName,"w") as file:
+        file.write(ret)
 
 def createCollectivePredictions():
     fundsFiles = os.listdir(path='./data_original/funds')
